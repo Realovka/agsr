@@ -1,4 +1,4 @@
-package by.agsr.dao.entity.repository;
+package by.agsr.dao.repository;
 
 import by.agsr.dao.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;

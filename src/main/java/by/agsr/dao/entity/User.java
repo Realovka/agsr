@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+//import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.util.Collection;
 import java.util.List;
@@ -26,8 +26,8 @@ public class User {
     @Column(columnDefinition = "role_enum")
     private Role role;
 
-    public Collection<SimpleGrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(getRole().toString()));
-
-    }
+//    public Collection<SimpleGrantedAuthority> getAuthorities() {
+//        return List.of(new SimpleGrantedAuthority(getRole().toString()));
+//
+//    }
 }
