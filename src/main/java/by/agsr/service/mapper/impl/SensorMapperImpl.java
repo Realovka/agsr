@@ -2,6 +2,8 @@ package by.agsr.service.mapper.impl;
 
 import by.agsr.controller.dto.SensorDto;
 import by.agsr.dao.entity.Sensor;
+import by.agsr.dao.entity.TypeEntity;
+import by.agsr.dao.entity.UnitEntity;
 import by.agsr.service.mapper.RangeMapper;
 import by.agsr.service.mapper.SensorMapper;
 import lombok.RequiredArgsConstructor;
@@ -21,8 +23,8 @@ public class SensorMapperImpl implements SensorMapper {
                 .name(sensorDto.getName())
                 .model(sensorDto.getModel())
                 .range(rangeMapper.mapToEntity(sensorDto.getRangeDto()))
-                .type(sensorDto.getType())
-                .unit(sensorDto.getUnit())
+                .typeEntity(new TypeEntity(null, sensorDto.getType()))
+                .unitEntity(new UnitEntity(null, sensorDto.getUnit()))
                 .location(sensorDto.getLocation())
                 .description(sensorDto.getDescription())
                 .build();
@@ -33,8 +35,8 @@ public class SensorMapperImpl implements SensorMapper {
                 .name(sensor.getName())
                 .model(sensor.getModel())
                 .rangeDto(rangeMapper.mapToDto(sensor.getRange()))
-                .type(sensor.getType())
-                .unit(sensor.getUnit())
+                .type(sensor.getTypeEntity().getType())
+                .unit(sensor.getUnitEntity() != null ? sensor.getUnitEntity().getUnit() : null)
                 .location(sensor.getLocation())
                 .description(sensor.getDescription())
                 .build();

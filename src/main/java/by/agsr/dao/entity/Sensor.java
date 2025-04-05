@@ -5,8 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.JdbcType;
-import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 
 @Entity
 @Table(name = "SENSOR")
@@ -23,14 +21,12 @@ public class Sensor {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "range_id", referencedColumnName = "id")
     private Range range;
-    @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "type_enum")
-    @JdbcType(PostgreSQLEnumJdbcType.class)
-    private Type type;
-    @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "unit_enum")
-    @JdbcType(PostgreSQLEnumJdbcType.class)
-    private Unit unit;
+    @ManyToOne
+    @JoinColumn(name = "type_id", referencedColumnName = "id")
+    private TypeEntity typeEntity;
+    @ManyToOne
+    @JoinColumn(name = "unit_id", referencedColumnName = "id")
+    private UnitEntity unitEntity;
     private String location;
     private String description;
 

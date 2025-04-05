@@ -2,16 +2,20 @@ package by.agsr.service.impl;
 
 import by.agsr.controller.dto.SensorDto;
 import by.agsr.dao.entity.Sensor;
+import by.agsr.dao.entity.TypeEntity;
+import by.agsr.dao.entity.UnitEntity;
 import by.agsr.dao.repository.SensorRepository;
+import by.agsr.dao.repository.TypeRepository;
+import by.agsr.dao.repository.UnitRepository;
 import by.agsr.exception.EntityNotFoundException;
 import by.agsr.service.SensorService;
 import by.agsr.service.mapper.SensorMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -20,12 +24,14 @@ public class SensorServiceImpl implements SensorService {
 
     private final SensorRepository sensorRepository;
     private final SensorMapper sensorMapper;
+    private final TypeRepository typeRepository;
+    private final UnitRepository unitRepository;
 
     @Override
     @Transactional
     public Long createSensor(SensorDto sensorDto) {
         Sensor sensor = sensorMapper.mapToEntity(sensorDto);
-        return sensorRepository.save(sensor).getId();
+        return saveSensor(sensorDto, sensor);
     }
 
     @Override
@@ -52,37 +58,53 @@ public class SensorServiceImpl implements SensorService {
     @Override
     @Transactional
     public SensorDto updateSensor(Long id, SensorDto sensorDto) {
-        Sensor sensor = sensorRepository.findById(id).orElseThrow(()
+        sensorRepository.findById(id).orElseThrow(()
                 -> new EntityNotFoundException(String.format("No such entity with id %s", id)));
-        buildSensorForUpdate(sensorDto, sensor);
-        sensor = sensorRepository.save(sensor);
+        Sensor sensor = sensorMapper.mapToEntity(sensorDto);
+        sensor.setId(id);
+        Long sensorId = saveSensor(sensorDto, sensor);
+        sensor = sensorRepository.findById(sensorId).orElseThrow(()
+                -> new EntityNotFoundException(String.format("No such entity with id %s", id)));
         return sensorMapper.mapToDto(sensor);
     }
 
-    private void buildSensorForUpdate(SensorDto sensorDto, Sensor sensor) {
-        if (StringUtils.isNotEmpty(sensorDto.getName())) {
-            sensor.setName(sensorDto.getName());
+    private Long saveSensor(SensorDto sensorDto, Sensor sensor) {
+        Long typeId = getTypeEntityId(sensorDto);
+        sensor.setTypeEntity(new TypeEntity(typeId));
+        if (isUnitNull(sensorDto)) {
+            sensor.setUnitEntity(null);
+        } else {
+            Long unitId = getUnitEntityId(sensorDto);
+            sensor.setUnitEntity(new UnitEntity(unitId));
         }
-        if (StringUtils.isNotEmpty(sensorDto.getModel())) {
-            sensor.setModel(sensorDto.getModel());
-        }
-        if (sensorDto.getRangeDto().getFrom() != 0) {
-            sensor.getRange().setRangeFrom(sensorDto.getRangeDto().getFrom());
-        }
-        if (sensorDto.getRangeDto().getTo() != 0) {
-            sensor.getRange().setRangeTo(sensorDto.getRangeDto().getTo());
-        }
-        if (sensorDto.getType() != null) {
-            sensor.setType(sensorDto.getType());
-        }
-        if (sensorDto.getUnit() != null) {
-            sensor.setUnit(sensorDto.getUnit());
-        }
-        if (StringUtils.isNotEmpty(sensorDto.getLocation())) {
-            sensor.setLocation(sensorDto.getLocation());
-        }
-        if (StringUtils.isNotEmpty(sensorDto.getDescription())) {
-            sensor.setDescription(sensorDto.getDescription());
-        }
+        return sensorRepository.save(sensor).getId();
+    }
+
+    private boolean isUnitNull(SensorDto sensorDto) {
+        return sensorDto.getUnit() == null;
+    }
+
+    private Long getTypeEntityId(SensorDto sensorDto) {
+        Optional<TypeEntity> existingTypeEntity = typeRepository.findByType(sensorDto.getType());
+        return existingTypeEntity
+                .map(TypeEntity::getId)
+                .orElseGet(() -> {
+                    TypeEntity newTypeEntity = new TypeEntity();
+                    newTypeEntity.setType(sensorDto.getType());
+                    typeRepository.save(newTypeEntity);
+                    return newTypeEntity.getId();
+                });
+    }
+
+    private Long getUnitEntityId(SensorDto sensorDto) {
+        Optional<UnitEntity> existingUnitEntity = unitRepository.findByUnit(sensorDto.getUnit());
+        return existingUnitEntity
+                .map(UnitEntity::getId)
+                .orElseGet(() -> {
+                    UnitEntity newUnitEntity = new UnitEntity();
+                    newUnitEntity.setUnit(sensorDto.getUnit());
+                    unitRepository.save(newUnitEntity);
+                    return newUnitEntity.getId();
+                });
     }
 }

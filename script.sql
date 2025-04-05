@@ -1,6 +1,4 @@
--- create enum
-CREATE TYPE type_enum AS ENUM ('PRESSURE', 'VOLTAGE', 'TEMPERATURE', 'HUMIDITY');
-CREATE TYPE unit_enum AS ENUM ('BAR', 'VOLTAGE', 'CELSIUS_DEGREES', 'PERCENT');
+-- create enum (before start app)
 CREATE TYPE role_enum AS ENUM ('USER', 'ADMIN');
 
 -- insert users
