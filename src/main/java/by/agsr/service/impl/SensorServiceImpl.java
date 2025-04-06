@@ -48,6 +48,12 @@ public class SensorServiceImpl implements SensorService {
     }
 
     @Override
+    public List<SensorDto> getByNameAndModel(String name, String model) {
+        List<Sensor> sensors = sensorRepository.findByNameAndModel(name, model);
+        return sensorMapper.mapToListDto(sensors);
+    }
+
+    @Override
     @Transactional
     public void deleteSensor(Long id) {
         sensorRepository.findById(id).orElseThrow(()

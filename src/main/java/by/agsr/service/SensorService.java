@@ -10,4 +10,5 @@ public interface SensorService {
     List<SensorDto> getAll();
     void deleteSensor(Long id);
     SensorDto updateSensor(Long id, SensorDto sensorDto);
+    List<SensorDto> getByNameAndModel(String name, String model);
 }
